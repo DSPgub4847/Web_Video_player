@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neumorphic Video Player</title>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #e0e5ec;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #4a5568;
+    }
+
+    /* Main Container */
+    .player-card {
+      width: 90%;
+      max-width: 700px;
+      padding: 30px;
+      border-radius: 25px;
+      background: #e0e5ec;
+      box-shadow: 9px 9px 16px #a3b1c6, 
+                 -9px -9px 16px #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header & File Input */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #313842;
+    }
+
+    .file-upload-btn {
+      padding: 10px 18px;
+      border-radius: 12px;
+      background: #e0e5ec;
+      box-shadow: 5px 5px 10px #a3b1c6, 
+                 -5px -5px 10px #ffffff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .file-upload-btn:active {
+      box-shadow: inset 3px 3px 6px #a3b1c6, 
+                  inset -3px -3px 6px #ffffff;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    /* Video Container */
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      background: #e0e5ec;
+      box-shadow: inset 6px 6px 12px #a3b1c6, 
+                  inset -6px -6px 12px #ffffff;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    video {
+      width: 100%;
+      max-height: 380px;
+      border-radius: 12px;
+      outline: none;
+      object-fit: contain;
+      background-color: #1a202c;
+    }
+
+    /* Seekbar Progress Bar */
+    .progress-container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .time-text {
+      font-size: 0.75rem;
+      color: #718096;
+      font-weight: 500;
+      min-width: 45px;
+    }
+
+    .seek-bar {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 10px;
+      background: #e0e5ec;
+      box-shadow: inset 2px 2px 5px #a3b1c6, 
+                  inset -2px -2px 5px #ffffff;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .seek-bar::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #4d7cff;
+      box-shadow: 2px 2px 4px #a3b1c6, 
+                  -2px -2px 4px #ffffff;
+      cursor: pointer;
+    }
+
+    /* Controls Panel */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 10px;
+    }
+
+    .btn {
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: #e0e5ec;
+      box-shadow: 5px 5px 10px #a3b1c6, 
+                 -5px -5px 10px #ffffff;
+      color: #4a5568;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn:active {
+      box-shadow: inset 3px 3px 6px #a3b1c6, 
+                  inset -3px -3px 6px #ffffff;
+      color: #4d7cff;
+    }
+
+    .btn-large {
+      width: 60px;
+      height: 60px;
+      font-size: 1.2rem;
+      color: #4d7cff;
+    }
+
+    .center-controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .volume-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .volume-bar {
+      -webkit-appearance: none;
+      width: 70px;
+      height: 6px;
+      border-radius: 10px;
+      background: #e0e5ec;
+      box-shadow: inset 2px 2px 4px #a3b1c6, 
+                  inset -2px -2px 4px #ffffff;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .volume-bar::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #4a5568;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="player-card">
+    <!-- Header -->
+    <div class="header">
+      <div class="title" id="video-name">Offline Player</div>
+      <label for="file-input" class="file-upload-btn">
+        <i class="fa-solid fa-folder-open"></i> Open File
+      </label>
+      <input type="file" id="file-input" accept="video/*">
+    </div>
+
+    <!-- Video Display Area -->
+    <div class="video-wrapper">
+      <video id="main-video"></video>
+    </div>
+
+    <!-- Timeline / Seekbar -->
+    <div class="progress-container">
+      <span class="time-text" id="current-time">00:00</span>
+      <input type="range" class="seek-bar" id="seek-bar" value="0" min="0" step="0.1">
+      <span class="time-text" id="duration">00:00</span>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <!-- Volume Controls -->
+      <div class="volume-group">
+        <button class="btn" id="mute-btn"><i class="fa-solid fa-volume-high"></i></button>
+        <input type="range" class="volume-bar" id="volume-bar" min="0" max="1" step="0.05" value="1">
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="center-controls">
+        <button class="btn" id="rewind-btn"><i class="fa-solid fa-backward-step"></i></button>
+        <button class="btn btn-large" id="play-btn"><i class="fa-solid fa-play"></i></button>
+        <button class="btn" id="forward-btn"><i class="fa-solid fa-forward-step"></i></button>
+      </div>
+
+      <!-- Fullscreen Control -->
+      <button class="btn" id="fullscreen-btn"><i class="fa-solid fa-expand"></i></button>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('main-video');
+    const playBtn = document.getElementById('play-btn');
+    const playIcon = playBtn.querySelector('i');
+    const fileInput = document.getElementById('file-input');
+    const videoName = document.getElementById('video-name');
+    const seekBar = document.getElementById('seek-bar');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+    const volumeBar = document.getElementById('volume-bar');
+    const muteBtn = document.getElementById('mute-btn');
+    const muteIcon = muteBtn.querySelector('i');
+    const rewindBtn = document.getElementById('rewind-btn');
+    const forwardBtn = document.getElementById('forward-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+
+    // 1. File Upload Handler (Offline Video Loading)
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const fileURL = URL.createObjectURL(file);
+        video.src = fileURL;
+        videoName.textContent = file.name;
+        video.play();
+        playIcon.className = 'fa-solid fa-pause';
+      }
+    });
+
+    // 2. Play / Pause Functionality
+    playBtn.addEventListener('click', () => {
+      if (!video.src) return;
+      if (video.paused) {
+        video.play();
+        playIcon.className = 'fa-solid fa-pause';
+      } else {
+        video.pause();
+        playIcon.className = 'fa-solid fa-play';
+      }
+    });
+
+    // 3. Time Formatter Utility
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // 4. Update Seek Bar & Duration
+    video.addEventListener('loadedmetadata', () => {
+      seekBar.max = video.duration;
+      durationEl.textContent = formatTime(video.duration);
+    });
+
+    video.addEventListener('timeupdate', () => {
+      seekBar.value = video.currentTime;
+      currentTimeEl.textContent = formatTime(video.currentTime);
+    });
+
+    seekBar.addEventListener('input', () => {
+      video.currentTime = seekBar.value;
+    });
+
+    // 5. Forward / Rewind (10 Seconds)
+    rewindBtn.addEventListener('click', () => video.currentTime -= 10);
+    forwardBtn.addEventListener('click', () => video.currentTime += 10);
+
+    // 6. Volume Control
+    volumeBar.addEventListener('input', (e) => {
+      video.volume = e.target.value;
+      if (video.volume === 0) {
+        muteIcon.className = 'fa-solid fa-volume-xmark';
+      } else {
+        muteIcon.className = 'fa-solid fa-volume-high';
+      }
+    });
+
+    muteBtn.addEventListener('click', () => {
+      if (video.volume > 0) {
+        video.volume = 0;
+        volumeBar.value = 0;
+        muteIcon.className = 'fa-solid fa-volume-xmark';
+      } else {
+        video.volume = 1;
+        volumeBar.value = 1;
+        muteIcon.className = 'fa-solid fa-volume-high';
+      }
+    });
+
+    // 7. Fullscreen Toggle
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        video.requestFullscreen().catch(err => alert(err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    });
+  </script>
+</body>
+</html>
